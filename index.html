@@ -1,58 +1,185 @@
-<!DOCTYPE HTML>
-<!--
-	Adapted from Aerial by HTML5 UP and the XOS/Nange homepage structure.
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-	<title>Wenhao Hua | 个人主页</title>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<meta name="description" content="Wenhao Hua 的静态个人主页。" />
-	<meta name="keywords" content="Wenhao Hua, 个人主页, 吉林大学, 时间序列, 大语言模型" />
-	<meta name="robots" content="index,follow" />
-	<link rel="icon" href="favicon.ico" />
-	<link rel="stylesheet" href="assets/css/main.css" />
-	<style>
-		[class^="fa-"], [class*=" fa-"]::before {
-			font-family: "Font Awesome 5 Brands", "Font Awesome 5 Pro", "Font Awesome 5 Free", "Font Awesome 6 Brands", "Font Awesome 6 Pro", "Font Awesome 6 Free", sans-serif !important;
-			font-weight: 900 !important;
-		}
-	</style>
-	<noscript>
-		<link rel="stylesheet" href="assets/css/noscript.css" />
-	</noscript>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wenhao Hua | 个人主页</title>
+  <meta
+    name="description"
+    content="Wenhao Hua 的单页面静态个人主页，展示个人简介、研究方向、项目与联系方式。"
+  />
+  <meta
+    name="keywords"
+    content="Wenhao Hua, 个人主页, 吉林大学, 时间序列分析, 大语言模型, 记忆机制"
+  />
+  <meta name="robots" content="index,follow" />
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="assets/css/all.min.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-<body class="is-preload">
-	<div id="wrapper">
-		<div id="bg"></div>
-		<div id="overlay"></div>
-		<div id="main">
+<body>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="#home">Wenhao Hua</a>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="#about">关于</a>
+        <a href="#research">研究</a>
+        <a href="#projects">项目</a>
+        <a href="#contact">联系</a>
+      </nav>
+    </header>
 
-			<header id="header">
-				<h1>Wenhao Hua</h1>
-				<p>&nbsp;&bull;&nbsp; 吉林大学 &nbsp;&bull;&nbsp; 时间序列分析 / 大语言模型 / 记忆机制 &nbsp;&bull;&nbsp;</p>
-				<nav>
-					<ul>
-						<li><a href="https://github.com/Wenhao-Hua" target="_blank" rel="noreferrer noopener" class="icon fa-brands fa-github-alt" title="GitHub"><span class="label">GitHub</span></a></li>
-						<li><a href="https://github.com/Wenhao-Hua/Wenhao-Hua.github.io" target="_blank" rel="noreferrer noopener" class="icon fa-solid fa-code-branch" title="主页仓库"><span class="label">主页仓库</span></a></li>
-						<li><a href="mailto:huawh5523@mails.jlu.edu.cn" class="icon fa-solid fa-envelope" title="发送邮件"><span class="label">Email</span></a></li>
-						<li><a href="https://www.jlu.edu.cn/" target="_blank" rel="noreferrer noopener" class="icon fa-solid fa-graduation-cap" title="吉林大学"><span class="label">吉林大学</span></a></li>
-					</ul>
-				</nav>
-			</header>
+    <main>
+      <section class="hero section" id="home">
+        <div class="hero-copy">
+          <p class="eyebrow">Jilin University · Static Homepage</p>
+          <h1>单页面静态个人主页</h1>
+          <p class="hero-text">
+            这是我的个人主页，用来集中展示研究兴趣、项目实践和公开联系方式。
+            整个站点基于纯 HTML + CSS 构建，部署在 GitHub Pages。
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#research">查看研究方向</a>
+            <a
+              class="button"
+              href="https://github.com/Wenhao-Hua"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              打开 GitHub
+            </a>
+          </div>
+        </div>
 
-			<footer id="footer">
-				<span class="copyright">&copy; 2026 Wenhao Hua · 静态主页 · <a href="mailto:huawh5523@mails.jlu.edu.cn">huawh5523@mails.jlu.edu.cn</a> · Theme adapted from <a href="https://html5up.net/aerial" target="_blank" rel="noreferrer noopener">HTML5 UP Aerial</a></span>
-			</footer>
+        <div class="hero-panel">
+          <div class="stat-card">
+            <span class="stat-label">学校</span>
+            <strong>吉林大学</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">兴趣方向</span>
+            <strong>时间序列 / 大语言模型 / 记忆机制</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">站点类型</span>
+            <strong>单页面静态主页</strong>
+          </div>
+        </div>
+      </section>
 
-		</div>
-	</div>
-	<script>
-		window.onload = function () {
-			document.body.classList.remove('is-preload');
-		};
-	</script>
+      <section class="section" id="about">
+        <div class="section-heading">
+          <p class="eyebrow">About</p>
+          <h2>关于我</h2>
+        </div>
+        <div class="content-grid two-columns">
+          <article class="card">
+            <p>
+              我目前在吉林大学学习，关注时间序列分析、大语言模型以及记忆机制相关问题。
+              这个主页作为一个长期维护的静态站点，记录我的研究兴趣、项目进展和对外入口。
+            </p>
+          </article>
+          <article class="card">
+            <ul class="info-list">
+              <li><span>姓名</span><strong>Wenhao Hua</strong></li>
+              <li><span>学校</span><strong>吉林大学</strong></li>
+              <li><span>邮箱</span><strong>huawh5523@mails.jlu.edu.cn</strong></li>
+              <li><span>部署</span><strong>GitHub Pages</strong></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="research">
+        <div class="section-heading">
+          <p class="eyebrow">Research</p>
+          <h2>研究方向</h2>
+        </div>
+        <div class="content-grid three-columns">
+          <article class="card feature-card">
+            <h3>时间序列分析</h3>
+            <p>关注序列建模、预测、表示学习与面向真实场景的数据理解方法。</p>
+          </article>
+          <article class="card feature-card">
+            <h3>大语言模型</h3>
+            <p>关注模型能力边界、任务适配方式，以及模型在复杂推理中的表现。</p>
+          </article>
+          <article class="card feature-card">
+            <h3>记忆机制</h3>
+            <p>关注长期上下文、外部记忆与模型状态保持对系统能力的影响。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="projects">
+        <div class="section-heading">
+          <p class="eyebrow">Projects</p>
+          <h2>项目与站点</h2>
+        </div>
+        <div class="content-grid two-columns">
+          <article class="card project-card">
+            <h3>个人主页仓库</h3>
+            <p>当前主页采用静态文件方式维护，适合持续迭代内容并直接发布到 GitHub Pages。</p>
+            <a
+              class="text-link"
+              href="https://github.com/Wenhao-Hua/Wenhao-Hua.github.io"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              查看仓库
+            </a>
+          </article>
+          <article class="card project-card">
+            <h3>GitHub 主页</h3>
+            <p>公开代码、实验记录和后续项目内容会持续放在 GitHub 主页中统一管理。</p>
+            <a
+              class="text-link"
+              href="https://github.com/Wenhao-Hua"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              访问 GitHub
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="contact">
+        <div class="section-heading">
+          <p class="eyebrow">Contact</p>
+          <h2>联系</h2>
+        </div>
+        <div class="contact-card card">
+          <p>如果你希望讨论研究、项目合作或其他学术相关问题，可以通过以下方式联系我。</p>
+          <div class="contact-links">
+            <a href="mailto:huawh5523@mails.jlu.edu.cn">
+              <i class="fa-solid fa-envelope"></i>
+              <span>huawh5523@mails.jlu.edu.cn</span>
+            </a>
+            <a
+              href="https://github.com/Wenhao-Hua"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <i class="fa-brands fa-github"></i>
+              <span>github.com/Wenhao-Hua</span>
+            </a>
+            <a
+              href="https://www.jlu.edu.cn/"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span>吉林大学</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 Wenhao Hua · 单页面静态主页 · Theme assets adapted from HTML5 UP Aerial</p>
+    </footer>
+  </div>
 </body>
 </html>
