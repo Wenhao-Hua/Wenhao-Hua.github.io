@@ -1,0 +1,124 @@
+{
+  "site": {
+    "title": "Wenhao Hua",
+    "description": "Personal homepage and research blog for Wenhao Hua.",
+    "author": "Wenhao Hua",
+    "affiliation": "Jilin University",
+    "email": "huawh5523@mails.jlu.edu.cn",
+    "homepage": "https://wenhao-hua.github.io/",
+    "github": "https://github.com/Wenhao-Hua"
+  },
+  "hero": {
+    "eyebrow": "Personal Homepage",
+    "headline": "Research notes, project logs, and a clearer public profile.",
+    "summary": "I am an undergraduate student at Jilin University. This site is where I collect what I am learning around time series analysis, large language models, and memory-oriented methods.",
+    "primaryLabel": "Read recent posts",
+    "primaryHref": "#writing",
+    "secondaryLabel": "Open GitHub",
+    "secondaryHref": "https://github.com/Wenhao-Hua",
+    "panelLabel": "Current Focus",
+    "panelTitle": "What I am exploring now",
+    "panelItems": [
+      "Time series analysis and long-horizon modeling",
+      "Large language models for research workflows",
+      "Memory mechanisms, retrieval, and compression",
+      "A lightweight writing workflow powered by Markdown"
+    ]
+  },
+  "highlights": [
+    {
+      "label": "Affiliation",
+      "value": "Jilin University"
+    },
+    {
+      "label": "Interests",
+      "value": "Time Series / LLMs / Memory"
+    },
+    {
+      "label": "Site Type",
+      "value": "Homepage + Static Blog"
+    },
+    {
+      "label": "Publishing",
+      "value": "GitHub Pages"
+    }
+  ],
+  "about": {
+    "title": "A simple academic homepage that can keep growing",
+    "copy": "Instead of a single static profile card, this site is meant to accumulate context over time.",
+    "lead": "I am an undergraduate student at Jilin University with interests in time series analysis, large language models, and memory-centered modeling ideas.",
+    "body": "The goal of this homepage is to give me one place to publish notes, explain what I am working on, and keep a public trail of projects and reading. As the work becomes more concrete, the site can expand without changing the underlying structure.",
+    "keywords": [
+      "Time Series Analysis",
+      "Large Language Models",
+      "Memory Mechanisms",
+      "Research Notes",
+      "Project Logs"
+    ]
+  },
+  "research": {
+    "title": "Research themes I want to keep pushing",
+    "copy": "These are not fixed claims about expertise. They are the areas this homepage will organize around.",
+    "items": [
+      {
+        "kicker": "01",
+        "title": "Time Series Learning",
+        "body": "Forecasting, representation learning, and robust modeling for structured temporal signals."
+      },
+      {
+        "kicker": "02",
+        "title": "LLM-Centered Systems",
+        "body": "How large language models can support reasoning, tooling, and research-oriented workflows."
+      },
+      {
+        "kicker": "03",
+        "title": "Memory as Infrastructure",
+        "body": "Retrieval, compression, and memory-bank style mechanisms for longer context and better decisions."
+      }
+    ]
+  },
+  "building": {
+    "title": "What this site will hold",
+    "copy": "The homepage is designed as an archive, not only as a landing page.",
+    "items": [
+      {
+        "label": "Writing",
+        "title": "Research notes and reflections",
+        "body": "Short posts for reading notes, implementation ideas, and progress summaries.",
+        "href": "#writing"
+      },
+      {
+        "label": "Profile",
+        "title": "A stable public introduction",
+        "body": "A homepage that can describe interests, contact details, and evolving work without redesigning everything."
+      },
+      {
+        "label": "Code",
+        "title": "GitHub-first publishing workflow",
+        "body": "Markdown sources and generated static files live in the same repository for easy GitHub Pages deployment.",
+        "href": "https://github.com/Wenhao-Hua/Wenhao-Hua.github.io"
+      }
+    ]
+  },
+  "links": [
+    {
+      "label": "GitHub",
+      "href": "https://github.com/Wenhao-Hua",
+      "meta": "Code, repositories, and public experiments"
+    },
+    {
+      "label": "Homepage Repository",
+      "href": "https://github.com/Wenhao-Hua/Wenhao-Hua.github.io",
+      "meta": "Source files and generated pages"
+    },
+    {
+      "label": "Email",
+      "href": "mailto:huawh5523@mails.jlu.edu.cn",
+      "meta": "Best contact channel for now"
+    }
+  ],
+  "contact": {
+    "title": "Find me online",
+    "copy": "The fastest way to understand what this site is becoming is to read the writing section below and then jump to GitHub."
+  }
+}

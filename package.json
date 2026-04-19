@@ -1,0 +1,8 @@
+{
+  "name": "wenhao-hua-homepage",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "build:blog": "node build.js"
+  }
+}
