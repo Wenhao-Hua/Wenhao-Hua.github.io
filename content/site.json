@@ -15,6 +15,12 @@
     "subtitle": "时间序列分析 / 大语言模型 / 记忆机制",
     "summary": "这里是我的个人主页入口，用来整理研究兴趣、项目记录与公开写作。",
     "quote": "把主页做成长期入口，而不是一次性的电子名片。",
+    "metaItems": [
+      "纯静态网页",
+      "多页面跳转",
+      "HTML / CSS 生成",
+      "GitHub Pages 部署"
+    ],
     "primaryLabel": "进入文章",
     "primaryHref": "writing.html",
     "secondaryLabel": "打开 GitHub",
