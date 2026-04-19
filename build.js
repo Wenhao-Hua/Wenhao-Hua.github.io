@@ -7,31 +7,27 @@ const POSTS_DIR = path.join(CONTENT_DIR, "posts");
 const OUTPUT_POSTS_DIR = path.join(ROOT, "posts");
 const SITE_CONFIG_PATH = path.join(CONTENT_DIR, "site.json");
 
-const ROOT_PAGES = [
-  "index.html",
-  "about.html",
-  "research.html",
-  "projects.html",
-  "writing.html",
-  "contact.html",
-  "404.html",
-];
-
 const NAV_ITEMS = [
-  { key: "home", label: "首页", file: "index.html" },
-  { key: "about", label: "关于", file: "about.html" },
-  { key: "research", label: "研究", file: "research.html" },
-  { key: "projects", label: "项目", file: "projects.html" },
-  { key: "writing", label: "文章", file: "writing.html" },
-  { key: "contact", label: "联系", file: "contact.html" },
+  { key: "home", label: "??", href: "index.html" },
+  { key: "about", label: "??", href: "about.html" },
+  { key: "research", label: "??", href: "research.html" },
+  { key: "projects", label: "??", href: "projects.html" },
+  { key: "writing", label: "??", href: "writing.html" },
+  { key: "contact", label: "??", href: "contact.html" },
 ];
 
-function ensureDir(dirPath) {
-  fs.mkdirSync(dirPath, { recursive: true });
+const ROOT_PAGES = ["index.html", "about.html", "research.html", "projects.html", "writing.html", "contact.html", "404.html"];
+
+function ensureDir(target) {
+  fs.mkdirSync(target, { recursive: true });
 }
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
+function writeFile(target, content) {
+  fs.writeFileSync(target, content, "utf8");
 }
 
 function escapeHtml(value) {
@@ -43,18 +39,19 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
-function stripWrappingQuotes(value) {
+function stripQuotes(value) {
+  const source = String(value ?? "").trim();
   if (
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith("'") && value.endsWith("'"))
+    (source.startsWith('"') && source.endsWith('"')) ||
+    (source.startsWith("'") && source.endsWith("'"))
   ) {
-    return value.slice(1, -1);
+    return source.slice(1, -1);
   }
-  return value;
+  return source;
 }
 
-function parseScalarValue(value) {
-  const trimmed = stripWrappingQuotes(String(value || "").trim());
+function parseScalar(value) {
+  const trimmed = stripQuotes(value);
   if (trimmed === "true") return true;
   if (trimmed === "false") return false;
   if (/^\d+$/.test(trimmed)) return Number(trimmed);
@@ -62,64 +59,63 @@ function parseScalarValue(value) {
     return trimmed
       .slice(1, -1)
       .split(",")
-      .map((item) => stripWrappingQuotes(item.trim()))
+      .map((item) => stripQuotes(item))
+      .map((item) => item.trim())
       .filter(Boolean);
   }
   return trimmed;
 }
 
 function parseFrontMatter(raw) {
-  const matched = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!matched) {
-    return { attributes: {}, body: String(raw || "").trim() };
-  }
+  const match = String(raw).match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!match) return { attributes: {}, body: String(raw || "").trim() };
 
   const attributes = {};
-  for (const rawLine of matched[1].split(/\r?\n/)) {
-    const line = rawLine.trim();
+  for (const sourceLine of match[1].split(/\r?\n/)) {
+    const line = sourceLine.trim();
     if (!line || line.startsWith("#")) continue;
-    const separatorIndex = line.indexOf(":");
-    if (separatorIndex === -1) continue;
-    const key = line.slice(0, separatorIndex).trim();
-    const value = line.slice(separatorIndex + 1).trim();
-    attributes[key] = parseScalarValue(value);
+    const separator = line.indexOf(":");
+    if (separator === -1) continue;
+    const key = line.slice(0, separator).trim();
+    const value = line.slice(separator + 1).trim();
+    attributes[key] = parseScalar(value);
   }
 
-  return { attributes, body: matched[2].trim() };
+  return { attributes, body: match[2].trim() };
 }
 
-function parseDateValue(dateInput) {
-  const raw = String(dateInput || "").trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return new Date(`${raw}T00:00:00Z`);
-  return new Date(raw);
+function parseDate(dateInput) {
+  const source = String(dateInput || "").trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(source)) {
+    return new Date(`${source}T00:00:00Z`);
+  }
+  return new Date(source);
 }
 
-function formatDate(dateInput, format) {
-  const date = parseDateValue(dateInput);
-  if (Number.isNaN(date.getTime())) return String(dateInput);
+function formatDate(dateInput) {
+  const date = parseDate(dateInput);
+  if (Number.isNaN(date.getTime())) return escapeHtml(dateInput);
   return new Intl.DateTimeFormat("zh-CN", {
     timeZone: "UTC",
     year: "numeric",
-    month: format === "long" ? "long" : "numeric",
+    month: "long",
     day: "numeric",
   }).format(date);
 }
 
-function estimateReadingMinutes(text) {
-  const words = String(text || "")
+function readingMinutes(text) {
+  const count = String(text || "")
     .trim()
     .split(/\s+/)
     .filter(Boolean).length;
-  return Math.max(1, Math.round(words / 220) || 1);
+  return Math.max(1, Math.round(count / 220) || 1);
 }
 
 function renderInline(text) {
   const parts = String(text || "").split(/(`[^`]+`)/g);
-
   return parts
     .map((part) => {
       if (!part) return "";
-
       if (/^`[^`]+`$/.test(part)) {
         return `<code>${escapeHtml(part.slice(1, -1))}</code>`;
       }
@@ -139,87 +135,84 @@ function renderInline(text) {
     .join("");
 }
 
-function isBlockStarter(line) {
+function isBlockStart(line) {
   const trimmed = line.trim();
   return (
     /^#{1,6}\s/.test(trimmed) ||
-    /^>\s?/.test(trimmed) ||
     /^[-*]\s+/.test(trimmed) ||
     /^\d+\.\s+/.test(trimmed) ||
+    /^>\s?/.test(trimmed) ||
     /^```/.test(trimmed)
   );
 }
 
 function renderMarkdown(markdown) {
   const lines = String(markdown || "").replace(/\r/g, "").split("\n");
-  const html = [];
+  const out = [];
 
   for (let index = 0; index < lines.length; ) {
-    const line = lines[index];
-    const trimmed = line.trim();
-
-    if (!trimmed) {
+    const current = lines[index].trim();
+    if (!current) {
       index += 1;
       continue;
     }
 
-    if (/^```/.test(trimmed)) {
-      const language = trimmed.slice(3).trim();
-      const codeLines = [];
+    if (/^```/.test(current)) {
+      const language = current.slice(3).trim();
+      const block = [];
       index += 1;
       while (index < lines.length && !/^```/.test(lines[index].trim())) {
-        codeLines.push(lines[index]);
+        block.push(lines[index]);
         index += 1;
       }
       if (index < lines.length) index += 1;
-
-      html.push(
+      out.push(
         `<pre class="code-block"><code${
           language ? ` class="language-${escapeHtml(language)}"` : ""
-        }>${escapeHtml(codeLines.join("\n"))}</code></pre>`,
+        }>${escapeHtml(block.join("\n"))}</code></pre>`,
       );
       continue;
     }
 
-    const headingMatch = trimmed.match(/^(#{1,6})\s+(.*)$/);
-    if (headingMatch) {
-      const level = headingMatch[1].length;
-      html.push(`<h${level}>${renderInline(headingMatch[2])}</h${level}>`);
+    const heading = current.match(/^(#{1,6})\s+(.*)$/);
+    if (heading) {
+      const level = heading[1].length;
+      out.push(`<h${level}>${renderInline(heading[2])}</h${level}>`);
       index += 1;
       continue;
     }
 
-    if (/^>\s?/.test(trimmed)) {
-      const quoteLines = [];
+    if (/^>\s?/.test(current)) {
+      const quote = [];
       while (index < lines.length && /^>\s?/.test(lines[index].trim())) {
-        quoteLines.push(lines[index].trim().replace(/^>\s?/, ""));
+        quote.push(lines[index].trim().replace(/^>\s?/, ""));
         index += 1;
       }
-      html.push(`<blockquote>${renderMarkdown(quoteLines.join("\n"))}</blockquote>`);
+      out.push(`<blockquote>${renderMarkdown(quote.join("\n"))}</blockquote>`);
       continue;
     }
 
-    if (/^[-*]\s+/.test(trimmed)) {
+    if (/^[-*]\s+/.test(current)) {
       const items = [];
       while (index < lines.length && /^[-*]\s+/.test(lines[index].trim())) {
         items.push(lines[index].trim().replace(/^[-*]\s+/, ""));
         index += 1;
       }
-      html.push(`<ul>${items.map((item) => `<li>${renderInline(item)}</li>`).join("")}</ul>`);
+      out.push(`<ul>${items.map((item) => `<li>${renderInline(item)}</li>`).join("")}</ul>`);
       continue;
     }
 
-    if (/^\d+\.\s+/.test(trimmed)) {
+    if (/^\d+\.\s+/.test(current)) {
       const items = [];
       while (index < lines.length && /^\d+\.\s+/.test(lines[index].trim())) {
         items.push(lines[index].trim().replace(/^\d+\.\s+/, ""));
         index += 1;
       }
-      html.push(`<ol>${items.map((item) => `<li>${renderInline(item)}</li>`).join("")}</ol>`);
+      out.push(`<ol>${items.map((item) => `<li>${renderInline(item)}</li>`).join("")}</ol>`);
       continue;
     }
 
-    const paragraphLines = [trimmed];
+    const paragraph = [current];
     index += 1;
     while (index < lines.length) {
       const nextLine = lines[index];
@@ -227,14 +220,25 @@ function renderMarkdown(markdown) {
         index += 1;
         break;
       }
-      if (isBlockStarter(nextLine)) break;
-      paragraphLines.push(nextLine.trim());
+      if (isBlockStart(nextLine)) break;
+      paragraph.push(nextLine.trim());
       index += 1;
     }
-    html.push(`<p>${renderInline(paragraphLines.join(" "))}</p>`);
+    out.push(`<p>${renderInline(paragraph.join(" "))}</p>`);
   }
 
-  return html.join("\n");
+  return out.join("\n");
+}
+
+function toHref(href, depth = 0) {
+  if (!href) return "#";
+  if (/^(?:[a-z]+:|#|\/\/)/i.test(href)) return href;
+  if (href.startsWith("/")) return href;
+  return `${depth > 0 ? "../".repeat(depth) : "./"}${href.replace(/^\.\//, "")}`;
+}
+
+function renderTextParagraphs(paragraphs = []) {
+  return paragraphs.map((paragraph) => `<p>${renderInline(paragraph)}</p>`).join("\n");
 }
 
 function readPosts() {
@@ -248,7 +252,6 @@ function readPosts() {
       const { attributes, body } = parseFrontMatter(raw);
       const slug = String(attributes.slug || path.basename(fileName, ".md")).trim();
 
-      if (!slug) throw new Error(`Missing slug in ${fileName}`);
       if (!attributes.title) throw new Error(`Missing title in ${fileName}`);
       if (!attributes.date) throw new Error(`Missing date in ${fileName}`);
 
@@ -256,32 +259,20 @@ function readPosts() {
         slug,
         title: String(attributes.title).trim(),
         date: String(attributes.date).trim(),
-        category: String(attributes.category || "笔记").trim(),
+        category: String(attributes.category || "??").trim(),
         summary: String(attributes.summary || "").trim(),
         featured: Boolean(attributes.featured),
-        tags: Array.isArray(attributes.tags)
-          ? attributes.tags.map((tag) => String(tag).trim()).filter(Boolean)
-          : [],
-        renderedBody: renderMarkdown(body),
-        readingMinutes: estimateReadingMinutes(body),
+        tags: Array.isArray(attributes.tags) ? attributes.tags.map((item) => String(item).trim()).filter(Boolean) : [],
+        bodyHtml: renderMarkdown(body),
+        readingMinutes: readingMinutes(body),
       };
     })
-    .sort((left, right) => parseDateValue(right.date) - parseDateValue(left.date));
-
-  const slugs = new Set();
-  for (const post of posts) {
-    if (slugs.has(post.slug)) throw new Error(`Duplicate slug "${post.slug}"`);
-    slugs.add(post.slug);
-  }
+    .sort((a, b) => parseDate(b.date) - parseDate(a.date));
 
   return posts;
 }
 
-function toRelativePath(fileName, depth) {
-  return `${depth > 0 ? "../".repeat(depth) : "./"}${fileName}`;
-}
-
-function renderLayout({ title, description, stylesheetPath, bodyClass = "", content }) {
+function renderDocument({ title, description, stylesheetPath, bodyClass, content }) {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
@@ -292,461 +283,438 @@ function renderLayout({ title, description, stylesheetPath, bodyClass = "", cont
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="${escapeHtml(stylesheetPath)}" />
   </head>
-  <body class="${escapeHtml(bodyClass)}">
-${content}
+  <body class="${escapeHtml(bodyClass || "")}">
+    ${content}
   </body>
 </html>
 `;
 }
 
-function renderHeader(site, currentPage, depth = 0) {
+function renderScene() {
   return `
-      <header class="site-header">
-        <a class="brand" href="${escapeHtml(toRelativePath("index.html", depth))}" aria-label="返回首页">
-          <span class="brand-avatar">WH</span>
-          <span class="brand-text">
-            <strong>${escapeHtml(site.author)}</strong>
-            <span>${escapeHtml(site.affiliation)}</span>
-          </span>
-        </a>
-
-        <nav class="site-nav" aria-label="主导航">
-          ${NAV_ITEMS.map((item) => {
-            const active = item.key === currentPage ? " is-current" : "";
-            return `<a class="site-nav-link${active}" href="${escapeHtml(toRelativePath(item.file, depth))}">${escapeHtml(
-              item.label,
-            )}</a>`;
-          }).join("")}
-        </nav>
-      </header>
+    <div class="page-scene" aria-hidden="true">
+      <div class="scene-gradient scene-gradient-a"></div>
+      <div class="scene-gradient scene-gradient-b"></div>
+      <div class="scene-gradient scene-gradient-c"></div>
+      <div class="scene-grid"></div>
+      <div class="scene-vignette"></div>
+    </div>
   `;
 }
 
 function renderFooter(site, depth = 0) {
+  const segments = [
+    `<a href="${escapeHtml(site.github)}" target="_blank" rel="noreferrer">GitHub</a>`,
+    `<a href="${escapeHtml(`mailto:${site.email}`)}">${escapeHtml(site.email)}</a>`,
+    `<a href="${escapeHtml(toHref("writing.html", depth))}">??</a>`,
+  ];
+
   return `
-      <footer class="site-footer">
-        <p>${escapeHtml(site.author)} / ${escapeHtml(site.affiliation)}</p>
-        <div class="footer-links">
-          <a href="${escapeHtml(toRelativePath("index.html", depth))}">首页</a>
-          <a href="${escapeHtml(site.github)}" target="_blank" rel="noreferrer">GitHub</a>
-          <a href="mailto:${escapeHtml(site.email)}">${escapeHtml(site.email)}</a>
-        </div>
-      </footer>
+    <footer class="site-footer">
+      <p>${segments.join('<span class="footer-dot">/</span>')}</p>
+      <span>${escapeHtml(site.footerNote || "?? GitHub Pages ??")}</span>
+    </footer>
   `;
 }
 
-function renderSectionHeading(label, title, copy = "") {
+function renderTopbar(site, currentKey, depth = 0) {
   return `
-          <div class="section-heading">
-            <p class="section-label">${escapeHtml(label)}</p>
-            <h2>${escapeHtml(title)}</h2>
-            ${copy ? `<p class="section-copy">${escapeHtml(copy)}</p>` : ""}
-          </div>
+    <header class="topbar">
+      <a class="topbar-brand" href="${escapeHtml(toHref("index.html", depth))}">
+        <span class="topbar-mark">WH</span>
+        <span class="topbar-copy">
+          <strong>${escapeHtml(site.author)}</strong>
+          <span>${escapeHtml(site.affiliation)}</span>
+        </span>
+      </a>
+      <nav class="topbar-nav" aria-label="???">
+        ${NAV_ITEMS.map((item) => {
+          const state = item.key === currentKey ? " is-current" : "";
+          return `<a class="topbar-link${state}" href="${escapeHtml(toHref(item.href, depth))}">${escapeHtml(item.label)}</a>`;
+        }).join("")}
+      </nav>
+    </header>
   `;
 }
 
-function renderActionButtons(items) {
+function renderQuickLinks(quickLinks = [], depth = 0) {
   return `
-          <div class="action-row">
-            ${items
-              .map(
-                (item, index) =>
-                  `<a class="button ${index === 0 ? "button-primary" : "button-secondary"}" href="${escapeHtml(
-                    item.href,
-                  )}"${/^[a-z]+:/i.test(item.href) ? ' target="_blank" rel="noreferrer"' : ""}>${escapeHtml(
-                    item.label,
-                  )}</a>`,
-              )
-              .join("")}
-          </div>
+    <ul class="hero-links" aria-label="????">
+      ${quickLinks
+        .map((item) => {
+          const external = /^(?:[a-z]+:|\/\/)/i.test(item.href);
+          return `
+            <li>
+              <a class="hero-link" href="${escapeHtml(toHref(item.href, depth))}"${
+                external ? ' target="_blank" rel="noreferrer"' : ""
+              }>
+                <span class="hero-link-badge">${escapeHtml(item.short || item.label)}</span>
+                <span class="hero-link-label">${escapeHtml(item.label)}</span>
+                <span class="hero-link-note">${escapeHtml(item.note || "")}</span>
+              </a>
+            </li>
+          `;
+        })
+        .join("")}
+    </ul>
   `;
 }
 
-function renderSocialLinks(items) {
+function renderLatestPosts(posts = [], depth = 0) {
+  if (!posts.length) return "";
   return `
-          <div class="social-row">
-            ${items
-              .map(
-                (item) =>
-                  `<a class="social-link" href="${escapeHtml(item.href)}"${
-                    /^[a-z]+:/i.test(item.href) ? ' target="_blank" rel="noreferrer"' : ""
-                  }>${escapeHtml(item.label)}</a>`,
-              )
-              .join("")}
-          </div>
-  `;
-}
-
-function renderEntryCards(items) {
-  return `
-          <div class="entry-grid">
-            ${items
-              .map(
-                (item) => `
-            <a class="entry-card" href="${escapeHtml(item.href)}"${
-                  /^[a-z]+:/i.test(item.href) ? ' target="_blank" rel="noreferrer"' : ""
-                }>
-              <p class="entry-label">${escapeHtml(item.label)}</p>
-              <h3>${escapeHtml(item.title)}</h3>
-              <p>${escapeHtml(item.body)}</p>
-            </a>
+    <div class="home-updates">
+      <p class="home-updates-label">????</p>
+      <div class="home-updates-list">
+        ${posts
+          .slice(0, 3)
+          .map(
+            (post) => `
+              <a class="home-update-chip" href="${escapeHtml(toHref(`posts/${post.slug}.html`, depth))}">
+                <span>${escapeHtml(post.title)}</span>
+                <time datetime="${escapeHtml(post.date)}">${escapeHtml(formatDate(post.date))}</time>
+              </a>
             `,
-              )
-              .join("")}
-          </div>
-  `;
-}
-
-function renderFactCards(items) {
-  return `
-          <div class="fact-grid">
-            ${items
-              .map(
-                (item) => `
-            <article class="fact-card">
-              <span>${escapeHtml(item.label)}</span>
-              <strong>${escapeHtml(item.value)}</strong>
-            </article>
-            `,
-              )
-              .join("")}
-          </div>
-  `;
-}
-
-function renderContentCards(items) {
-  return `
-          <div class="content-grid two-up">
-            ${items
-              .map(
-                (item) => `
-            <article class="content-card">
-              <p class="content-eyebrow">${escapeHtml(item.kicker || item.label || "内容")}</p>
-              <h3>${escapeHtml(item.title)}</h3>
-              <p>${escapeHtml(item.body)}</p>
-            </article>
-            `,
-              )
-              .join("")}
-          </div>
-  `;
-}
-
-function renderLinkCards(items) {
-  return `
-          <div class="content-grid two-up">
-            ${items
-              .map(
-                (item) => `
-            <a class="content-card link-card" href="${escapeHtml(item.href)}"${
-                  /^[a-z]+:/i.test(item.href) ? ' target="_blank" rel="noreferrer"' : ""
-                }>
-              <p class="content-eyebrow">${escapeHtml(item.label)}</p>
-              <h3>${escapeHtml(item.label)}</h3>
-              <p>${escapeHtml(item.meta)}</p>
-            </a>
-            `,
-              )
-              .join("")}
-          </div>
-  `;
-}
-
-function renderPostCards(posts, depth = 0) {
-  if (!posts.length) {
-    return `
-          <div class="content-grid">
-            <article class="content-card">
-              <p class="content-eyebrow">文章</p>
-              <h3>还没有文章</h3>
-              <p>在 <code>content/posts</code> 里新增 Markdown 文件后，运行 <code>node build.js</code> 就能生成。</p>
-            </article>
-          </div>
-    `;
-  }
-
-  return `
-          <div class="content-grid">
-            ${posts
-              .map((post) => {
-                const tagRow = post.tags.length
-                  ? `<div class="tag-row">${post.tags
-                      .map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`)
-                      .join("")}</div>`
-                  : "";
-
-                return `
-            <article class="content-card post-card">
-              <p class="content-eyebrow">${escapeHtml(post.category)} / ${escapeHtml(formatDate(post.date, "short"))}</p>
-              <h3>${escapeHtml(post.title)}</h3>
-              <p>${escapeHtml(post.summary)}</p>
-              ${tagRow}
-              <div class="content-meta">
-                <a class="text-link" href="${escapeHtml(toRelativePath(`posts/${post.slug}.html`, depth))}">阅读全文</a>
-                <span>${post.readingMinutes} 分钟阅读</span>
-              </div>
-            </article>
-                `;
-              })
-              .join("")}
-          </div>
-  `;
-}
-
-function renderPageHero(label, title, subtitle) {
-  return `
-        <section class="page-hero">
-          <p class="section-label">${escapeHtml(label)}</p>
-          <h1>${escapeHtml(title)}</h1>
-          <p class="page-subtitle">${escapeHtml(subtitle)}</p>
-        </section>
-  `;
-}
-
-function renderShell({ site, currentPage, title, description, stylesheetPath, content, depth = 0, bodyClass = "" }) {
-  return renderLayout({
-    title,
-    description,
-    stylesheetPath,
-    bodyClass,
-    content: `
-    <div class="shell">
-${renderHeader(site, currentPage, depth)}
-      <main class="page-main">
-${content}
-      </main>
-${renderFooter(site, depth)}
+          )
+          .join("")}
+      </div>
     </div>
-    `,
+  `;
+}
+
+function renderHomePage(siteData, posts) {
+  const { site, home, quickLinks } = siteData;
+  const content = `
+    ${renderScene()}
+    <main class="home-shell">
+      <section class="hero-panel">
+        <p class="hero-eyebrow">${escapeHtml(home.eyebrow)}</p>
+        <h1 class="hero-title">${escapeHtml(home.title)}</h1>
+        <p class="hero-subtitle">${escapeHtml(home.subtitle)}</p>
+        <p class="hero-summary">${escapeHtml(home.summary)}</p>
+        <p class="hero-quote">${escapeHtml(home.quote)}</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="${escapeHtml(toHref(home.primaryHref, 0))}">${escapeHtml(home.primaryLabel)}</a>
+          <a class="button button-secondary" href="${escapeHtml(toHref(home.secondaryHref, 0))}" target="_blank" rel="noreferrer">${escapeHtml(home.secondaryLabel)}</a>
+        </div>
+        ${renderQuickLinks(quickLinks, 0)}
+        ${renderLatestPosts(posts, 0)}
+      </section>
+      ${renderFooter(site, 0)}
+    </main>
+  `;
+
+  return renderDocument({
+    title: `${site.title} | ${home.title}`,
+    description: site.description,
+    stylesheetPath: "./styles.css",
+    bodyClass: "home-page",
+    content,
   });
 }
 
-function renderHomePage(config, posts) {
-  const featuredPosts = posts.slice(0, 3);
-  const homeEntries = [
-    { label: "关于", title: config.about.title, body: config.about.copy, href: "./about.html" },
-    { label: "研究", title: config.research.title, body: config.research.copy, href: "./research.html" },
-    { label: "项目", title: config.building.title, body: config.building.copy, href: "./projects.html" },
-    { label: "文章", title: "文章与随笔", body: "查看研究笔记、项目记录和较长篇幅的写作内容。", href: "./writing.html" },
-  ];
+function renderPageIntro(page) {
+  return `
+    <section class="page-intro panel">
+      <p class="page-eyebrow">${escapeHtml(page.eyebrow || "")}</p>
+      <h1>${escapeHtml(page.title)}</h1>
+      <p class="page-summary">${escapeHtml(page.intro || "")}</p>
+    </section>
+  `;
+}
 
-  return renderShell({
-    site: config.site,
-    currentPage: "home",
-    title: config.site.title,
-    description: config.site.description,
-    stylesheetPath: "./styles.css?v=20260419-ref-home",
-    content: `
-        <section class="cover-shell">
-          <div class="cover-panel">
-            <div class="cover-avatar">WH</div>
-            <p class="cover-kicker">${escapeHtml(config.home.kicker)}</p>
-            <h1>${escapeHtml(config.home.title)}</h1>
-            <p class="cover-subtitle">${escapeHtml(config.home.subtitle)}</p>
-            <p class="cover-summary">${escapeHtml(config.home.summary)}</p>
-            <p class="cover-quote">${escapeHtml(config.home.quote)}</p>
-${renderActionButtons([
-  { label: config.home.primaryLabel, href: config.home.primaryHref },
-  { label: config.home.secondaryLabel, href: config.home.secondaryHref },
-])}
-${renderSocialLinks(config.links)}
+function renderAboutPage(siteData) {
+  const { site, about } = siteData;
+  const content = `
+    ${renderScene()}
+    <div class="inner-shell">
+      ${renderTopbar(site, "about", 0)}
+      <main class="page-stack">
+        ${renderPageIntro(about)}
+        <section class="panel two-column">
+          <div class="rich-text">
+            ${renderTextParagraphs(about.paragraphs)}
+          </div>
+          <aside class="side-panel">
+            <p class="side-label">???</p>
+            <ul class="tag-list">
+              ${about.tags.map((tag) => `<li>${escapeHtml(tag)}</li>`).join("")}
+            </ul>
+          </aside>
+        </section>
+      </main>
+      ${renderFooter(site, 0)}
+    </div>
+  `;
+
+  return renderDocument({
+    title: `${site.title} | ${about.title}`,
+    description: about.intro || site.description,
+    stylesheetPath: "./styles.css",
+    bodyClass: "inner-page",
+    content,
+  });
+}
+
+function renderCardGrid(items = [], mode = "stack", depth = 0) {
+  return `
+    <section class="card-grid ${escapeHtml(mode)}">
+      ${items
+        .map((item) => {
+          const link = item.href
+            ? `<a class="text-link" href="${escapeHtml(toHref(item.href, depth))}"${
+                /^(?:[a-z]+:|\/\/)/i.test(item.href) ? ' target="_blank" rel="noreferrer"' : ""
+              }>${escapeHtml(item.linkLabel || "????")}</a>`
+            : "";
+
+          return `
+            <article class="panel info-card">
+              ${item.kicker ? `<p class="card-kicker">${escapeHtml(item.kicker)}</p>` : ""}
+              <h2>${escapeHtml(item.title)}</h2>
+              ${item.meta ? `<p class="card-meta">${escapeHtml(item.meta)}</p>` : ""}
+              <p>${escapeHtml(item.body)}</p>
+              ${link}
+            </article>
+          `;
+        })
+        .join("")}
+    </section>
+  `;
+}
+
+function renderResearchPage(siteData) {
+  const { site, research } = siteData;
+  const content = `
+    ${renderScene()}
+    <div class="inner-shell">
+      ${renderTopbar(site, "research", 0)}
+      <main class="page-stack">
+        ${renderPageIntro(research)}
+        ${renderCardGrid(research.items, "triple", 0)}
+      </main>
+      ${renderFooter(site, 0)}
+    </div>
+  `;
+
+  return renderDocument({
+    title: `${site.title} | ${research.title}`,
+    description: research.intro || site.description,
+    stylesheetPath: "./styles.css",
+    bodyClass: "inner-page",
+    content,
+  });
+}
+
+function renderProjectsPage(siteData) {
+  const { site, projects } = siteData;
+  const content = `
+    ${renderScene()}
+    <div class="inner-shell">
+      ${renderTopbar(site, "projects", 0)}
+      <main class="page-stack">
+        ${renderPageIntro(projects)}
+        ${renderCardGrid(projects.items, "double", 0)}
+      </main>
+      ${renderFooter(site, 0)}
+    </div>
+  `;
+
+  return renderDocument({
+    title: `${site.title} | ${projects.title}`,
+    description: projects.intro || site.description,
+    stylesheetPath: "./styles.css",
+    bodyClass: "inner-page",
+    content,
+  });
+}
+
+function renderWritingPage(siteData, posts) {
+  const { site, writing } = siteData;
+  const postCards = posts.length
+    ? posts
+        .map(
+          (post) => `
+            <article class="panel post-card">
+              <p class="card-kicker">${escapeHtml(post.category)}</p>
+              <h2><a href="${escapeHtml(toHref(`posts/${post.slug}.html`, 0))}">${escapeHtml(post.title)}</a></h2>
+              <p class="card-meta">${escapeHtml(formatDate(post.date))} / ${post.readingMinutes} ????</p>
+              <p>${escapeHtml(post.summary)}</p>
+              ${
+                post.tags.length
+                  ? `<ul class="tag-list compact">${post.tags.map((tag) => `<li>${escapeHtml(tag)}</li>`).join("")}</ul>`
+                  : ""
+              }
+            </article>
+          `,
+        )
+        .join("")
+    : `<div class="panel empty-state"><p>????????</p></div>`;
+
+  const content = `
+    ${renderScene()}
+    <div class="inner-shell">
+      ${renderTopbar(site, "writing", 0)}
+      <main class="page-stack">
+        ${renderPageIntro(writing)}
+        <section class="post-grid">
+          ${postCards}
+        </section>
+      </main>
+      ${renderFooter(site, 0)}
+    </div>
+  `;
+
+  return renderDocument({
+    title: `${site.title} | ${writing.title}`,
+    description: writing.intro || site.description,
+    stylesheetPath: "./styles.css",
+    bodyClass: "inner-page",
+    content,
+  });
+}
+
+function renderContactPage(siteData) {
+  const { site, contact } = siteData;
+  const methods = contact.methods
+    .map(
+      (item) => `
+        <article class="panel info-card">
+          <p class="card-kicker">${escapeHtml(item.label)}</p>
+          <h2>${escapeHtml(item.value)}</h2>
+          <p>${escapeHtml(item.note)}</p>
+          ${
+            item.href
+              ? `<a class="text-link" href="${escapeHtml(toHref(item.href, 0))}"${
+                  /^(?:[a-z]+:|\/\/)/i.test(item.href) ? ' target="_blank" rel="noreferrer"' : ""
+                }>${escapeHtml(item.linkLabel || "??")}</a>`
+              : ""
+          }
+        </article>
+      `,
+    )
+    .join("");
+
+  const content = `
+    ${renderScene()}
+    <div class="inner-shell">
+      ${renderTopbar(site, "contact", 0)}
+      <main class="page-stack">
+        ${renderPageIntro(contact)}
+        <section class="card-grid double">
+          ${methods}
+        </section>
+      </main>
+      ${renderFooter(site, 0)}
+    </div>
+  `;
+
+  return renderDocument({
+    title: `${site.title} | ${contact.title}`,
+    description: contact.intro || site.description,
+    stylesheetPath: "./styles.css",
+    bodyClass: "inner-page",
+    content,
+  });
+}
+
+function renderPostPage(siteData, post) {
+  const { site } = siteData;
+  const content = `
+    ${renderScene()}
+    <div class="inner-shell inner-shell-post">
+      ${renderTopbar(site, "writing", 1)}
+      <main class="page-stack">
+        <article class="panel article-shell">
+          <a class="back-link" href="${escapeHtml(toHref("writing.html", 1))}">??????</a>
+          <p class="card-kicker">${escapeHtml(post.category)}</p>
+          <h1>${escapeHtml(post.title)}</h1>
+          <p class="card-meta">${escapeHtml(formatDate(post.date))} / ${post.readingMinutes} ????</p>
+          ${
+            post.tags.length
+              ? `<ul class="tag-list compact">${post.tags.map((tag) => `<li>${escapeHtml(tag)}</li>`).join("")}</ul>`
+              : ""
+          }
+          <div class="article-body">
+            ${post.bodyHtml}
+          </div>
+        </article>
+      </main>
+      ${renderFooter(site, 1)}
+    </div>
+  `;
+
+  return renderDocument({
+    title: `${site.title} | ${post.title}`,
+    description: post.summary || site.description,
+    stylesheetPath: "../styles.css",
+    bodyClass: "inner-page post-page",
+    content,
+  });
+}
+
+function render404(siteData) {
+  const { site } = siteData;
+  const content = `
+    ${renderScene()}
+    <div class="inner-shell inner-shell-post">
+      ${renderTopbar(site, "", 0)}
+      <main class="page-stack">
+        <section class="panel page-intro">
+          <p class="page-eyebrow">404</p>
+          <h1>?????</h1>
+          <p class="page-summary">????????????????????????</p>
+          <div class="hero-actions left">
+            <a class="button button-primary" href="./index.html">????</a>
           </div>
         </section>
+      </main>
+      ${renderFooter(site, 0)}
+    </div>
+  `;
 
-        <section class="content-section">
-${renderSectionHeading("导航", "站内入口", "参考这两个主页的思路：首屏只负责建立第一印象，详细内容交给下面的入口页。")}
-${renderEntryCards(homeEntries)}
-        </section>
-
-        <section class="content-section">
-${renderSectionHeading("概览", "主页当前聚焦", "保持信息简洁，不在首屏堆太多说明。")}
-${renderFactCards(config.highlights)}
-        </section>
-
-        <section class="content-section">
-${renderSectionHeading("文章", "最近更新", "最近的写作保留在主页，但完整归档仍然在文章页。")}
-${renderPostCards(featuredPosts)}
-        </section>
-    `,
+  return renderDocument({
+    title: `${site.title} | ?????`,
+    description: site.description,
+    stylesheetPath: "./styles.css",
+    bodyClass: "inner-page",
+    content,
   });
 }
 
-function renderAboutPage(config) {
-  const cards = [
-    { kicker: "简介", title: "我是谁", body: config.about.lead },
-    { kicker: "定位", title: "为什么做这个站点", body: config.about.body },
-    { kicker: "关键词", title: "研究兴趣", body: config.about.keywords.join(" / ") },
-  ];
-
-  return renderShell({
-    site: config.site,
-    currentPage: "about",
-    title: `关于 | ${config.site.author}`,
-    description: config.about.copy,
-    stylesheetPath: "./styles.css?v=20260419-ref-home",
-    content: `
-${renderPageHero("关于", config.about.title, config.about.copy)}
-        <section class="content-section">
-${renderContentCards(cards)}
-        </section>
-    `,
-  });
-}
-
-function renderResearchPage(config) {
-  return renderShell({
-    site: config.site,
-    currentPage: "research",
-    title: `研究 | ${config.site.author}`,
-    description: config.research.copy,
-    stylesheetPath: "./styles.css?v=20260419-ref-home",
-    content: `
-${renderPageHero("研究", config.research.title, config.research.copy)}
-        <section class="content-section">
-${renderContentCards(config.research.items)}
-        </section>
-    `,
-  });
-}
-
-function renderProjectsPage(config) {
-  return renderShell({
-    site: config.site,
-    currentPage: "projects",
-    title: `项目 | ${config.site.author}`,
-    description: config.building.copy,
-    stylesheetPath: "./styles.css?v=20260419-ref-home",
-    content: `
-${renderPageHero("项目", config.building.title, config.building.copy)}
-        <section class="content-section">
-${renderEntryCards(config.building.items)}
-        </section>
-    `,
-  });
-}
-
-function renderWritingPage(config, posts) {
-  return renderShell({
-    site: config.site,
-    currentPage: "writing",
-    title: `文章 | ${config.site.author}`,
-    description: "文章归档与写作页面。",
-    stylesheetPath: "./styles.css?v=20260419-ref-home",
-    content: `
-${renderPageHero("文章", "文章与随笔", "这里集中展示所有已发布的内容，每篇文章都保留独立详情页。")}
-        <section class="content-section">
-${renderPostCards(posts)}
-        </section>
-    `,
-  });
-}
-
-function renderContactPage(config) {
-  return renderShell({
-    site: config.site,
-    currentPage: "contact",
-    title: `联系 | ${config.site.author}`,
-    description: config.contact.copy,
-    stylesheetPath: "./styles.css?v=20260419-ref-home",
-    content: `
-${renderPageHero("联系", config.contact.title, config.contact.copy)}
-        <section class="content-section">
-${renderLinkCards(config.links)}
-        </section>
-    `,
-  });
-}
-
-function renderPostPage(config, post) {
-  const tags = post.tags.length
-    ? `<div class="tag-row">${post.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>`
-    : "";
-
-  return renderShell({
-    site: config.site,
-    currentPage: "writing",
-    title: `${post.title} | ${config.site.author}`,
-    description: post.summary || config.site.description,
-    stylesheetPath: "../styles.css?v=20260419-ref-home",
-    depth: 1,
-    bodyClass: "article-page",
-    content: `
-${renderPageHero(post.category, post.title, post.summary)}
-        <section class="content-section article-section">
-          <div class="content-meta article-top-meta">
-            <span>${escapeHtml(config.site.author)}</span>
-            <span>${escapeHtml(formatDate(post.date, "long"))}</span>
-            <span>${post.readingMinutes} 分钟阅读</span>
-          </div>
-          ${tags}
-          <a class="text-link article-back" href="../writing.html">返回文章列表</a>
-          <article class="article-card">
-            <section class="article-body">
-              ${post.renderedBody}
-            </section>
-          </article>
-        </section>
-    `,
-  });
-}
-
-function renderNotFoundPage(config) {
-  return renderShell({
-    site: config.site,
-    currentPage: "",
-    title: `页面不存在 | ${config.site.author}`,
-    description: config.site.description,
-    stylesheetPath: "./styles.css?v=20260419-ref-home",
-    content: `
-${renderPageHero("404", "页面不存在", "你访问的页面不存在，或者已经被移动。")}
-        <section class="content-section">
-${renderActionButtons([{ label: "返回首页", href: "./index.html" }])}
-        </section>
-    `,
-  });
-}
-
-function cleanRootPages() {
-  for (const fileName of ROOT_PAGES) {
-    const fullPath = path.join(ROOT, fileName);
-    if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
-  }
-}
-
-function cleanPostPages() {
+function cleanOutput() {
   ensureDir(OUTPUT_POSTS_DIR);
+
+  for (const fileName of ROOT_PAGES) {
+    const target = path.join(ROOT, fileName);
+    if (fs.existsSync(target)) fs.unlinkSync(target);
+  }
+
   for (const fileName of fs.readdirSync(OUTPUT_POSTS_DIR)) {
-    if (fileName.endsWith(".html")) fs.unlinkSync(path.join(OUTPUT_POSTS_DIR, fileName));
-  }
-}
-
-function writePages(config, posts) {
-  cleanRootPages();
-  cleanPostPages();
-
-  const pages = [
-    { file: "index.html", content: renderHomePage(config, posts) },
-    { file: "about.html", content: renderAboutPage(config) },
-    { file: "research.html", content: renderResearchPage(config) },
-    { file: "projects.html", content: renderProjectsPage(config) },
-    { file: "writing.html", content: renderWritingPage(config, posts) },
-    { file: "contact.html", content: renderContactPage(config) },
-    { file: "404.html", content: renderNotFoundPage(config) },
-  ];
-
-  for (const page of pages) {
-    fs.writeFileSync(path.join(ROOT, page.file), page.content, "utf8");
-  }
-
-  for (const post of posts) {
-    fs.writeFileSync(path.join(OUTPUT_POSTS_DIR, `${post.slug}.html`), renderPostPage(config, post), "utf8");
+    const target = path.join(OUTPUT_POSTS_DIR, fileName);
+    if (fs.statSync(target).isFile() && fileName.endsWith(".html")) {
+      fs.unlinkSync(target);
+    }
   }
 }
 
 function build() {
-  const config = readJson(SITE_CONFIG_PATH);
+  const siteData = readJson(SITE_CONFIG_PATH);
   const posts = readPosts();
-  writePages(config, posts);
+
+  cleanOutput();
+
+  writeFile(path.join(ROOT, "index.html"), renderHomePage(siteData, posts));
+  writeFile(path.join(ROOT, "about.html"), renderAboutPage(siteData));
+  writeFile(path.join(ROOT, "research.html"), renderResearchPage(siteData));
+  writeFile(path.join(ROOT, "projects.html"), renderProjectsPage(siteData));
+  writeFile(path.join(ROOT, "writing.html"), renderWritingPage(siteData, posts));
+  writeFile(path.join(ROOT, "contact.html"), renderContactPage(siteData));
+  writeFile(path.join(ROOT, "404.html"), render404(siteData));
+
+  for (const post of posts) {
+    writeFile(path.join(OUTPUT_POSTS_DIR, `${post.slug}.html`), renderPostPage(siteData, post));
+  }
+
   console.log(`Built ${ROOT_PAGES.length} pages and ${posts.length} post(s) into ${ROOT}.`);
 }
 
