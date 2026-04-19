@@ -178,6 +178,26 @@ a {
   color: var(--text);
 }
 
+.home-meta {
+  margin: 22px auto 0;
+  padding: 0;
+  width: min(760px, 100%);
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.home-meta li {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line-soft);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
 .hero-actions {
   margin-top: 28px;
   display: flex;
@@ -338,6 +358,12 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 14px 22px;
+}
+
+.home-shell > .topbar,
+.home-shell > .site-footer {
+  width: min(920px, 100%);
+  margin-inline: auto;
 }
 
 .topbar-brand {
@@ -628,6 +654,7 @@ a {
 @media (max-width: 680px) {
   .home-shell {
     padding-inline: 14px;
+    align-content: start;
   }
 
   .inner-shell,

@@ -360,6 +360,15 @@ function renderQuickLinks(quickLinks = [], depth = 0) {
   `;
 }
 
+function renderHomeMeta(items = []) {
+  if (!items.length) return "";
+  return `
+    <ul class="home-meta" aria-label="????">
+      ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+    </ul>
+  `;
+}
+
 function renderLatestPosts(posts = [], depth = 0) {
   if (!posts.length) return "";
   return `
@@ -387,12 +396,14 @@ function renderHomePage(siteData, posts) {
   const content = `
     ${renderScene()}
     <main class="home-shell">
+      ${renderTopbar(site, "home", 0)}
       <section class="hero-panel">
         <p class="hero-eyebrow">${escapeHtml(home.eyebrow)}</p>
         <h1 class="hero-title">${escapeHtml(home.title)}</h1>
         <p class="hero-subtitle">${escapeHtml(home.subtitle)}</p>
         <p class="hero-summary">${escapeHtml(home.summary)}</p>
         <p class="hero-quote">${escapeHtml(home.quote)}</p>
+        ${renderHomeMeta(home.metaItems || [])}
         <div class="hero-actions">
           <a class="button button-primary" href="${escapeHtml(toHref(home.primaryHref, 0))}">${escapeHtml(home.primaryLabel)}</a>
           <a class="button button-secondary" href="${escapeHtml(toHref(home.secondaryHref, 0))}" target="_blank" rel="noreferrer">${escapeHtml(home.secondaryLabel)}</a>
