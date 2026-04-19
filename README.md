@@ -1,12 +1,13 @@
 # Wenhao Hua Homepage
 
-这是一个适合部署到 `Wenhao-Hua.github.io` 的静态个人主页博客。
+这是一个适合部署到 `Wenhao-Hua.github.io` 的多页面静态个人主页博客。
 
 站点特点：
 
-- 首页是个人主页，不只是文章列表
+- 站点是多页面结构，不是单页滚动
+- 包含首页、About、Research、Projects、Writing、Contact 等独立页面
 - 博客文章写在 `content/posts/*.md`
-- 运行 `node build.js` 后会生成根目录 `index.html`、`404.html` 和 `posts/*.html`
+- 运行 `node build.js` 后会生成多个根目录页面和 `posts/*.html`
 - 不依赖任何第三方 npm 包，适合直接放到 GitHub Pages
 
 ## 目录说明
@@ -16,6 +17,7 @@
 - `content/posts/*.md`：文章源文件
 - `content/posts/_template.md`：文章模板
 - `styles.css`：全站样式
+- `about.html` / `research.html` / `projects.html` / `writing.html` / `contact.html`：生成后的独立页面
 - `posts/*.html`：生成后的文章页
 
 ## 新增文章

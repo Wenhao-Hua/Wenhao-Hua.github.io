@@ -6,14 +6,14 @@
     <meta name="description" content="Personal homepage and research blog for Wenhao Hua." />
     <title>Wenhao Hua</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="./styles.css?v=20260419" />
+    <link rel="stylesheet" href="./styles.css?v=20260419-multipage" />
   </head>
-  <body class="">
+  <body class="site-page">
 
     <div class="page-shell">
 
       <header class="site-header">
-        <a class="brand" href="#top" aria-label="Back to top">
+        <a class="brand" href="./index.html" aria-label="Go to homepage">
           <span class="brand-mark">WH</span>
           <span class="brand-copy">
             <strong>Wenhao Hua</strong>
@@ -22,24 +22,21 @@
         </a>
 
         <nav class="site-nav" aria-label="Primary navigation">
-          <a href="#about">About</a>
-          <a href="#research">Research</a>
-          <a href="#building">Focus</a>
-          <a href="#writing">Writing</a>
-          <a href="#contact">Contact</a>
+          <a class="site-nav-link is-current" href="./index.html">Home</a><a class="site-nav-link" href="./about.html">About</a><a class="site-nav-link" href="./research.html">Research</a><a class="site-nav-link" href="./projects.html">Projects</a><a class="site-nav-link" href="./writing.html">Writing</a><a class="site-nav-link" href="./contact.html">Contact</a>
         </nav>
       </header>
   
       <main>
-        <section class="hero" id="top">
+
+        <section class="hero">
           <div class="hero-copy">
             <p class="section-label">Personal Homepage</p>
             <h1>Research notes, project logs, and a clearer public profile.</h1>
             <p class="hero-summary">I am an undergraduate student at Jilin University. This site is where I collect what I am learning around time series analysis, large language models, and memory-oriented methods.</p>
 
             <div class="hero-actions">
-              <a class="button button-primary" href="#writing">Read recent posts</a>
-              <a class="button button-secondary" href="https://github.com/Wenhao-Hua" target="_blank" rel="noreferrer">Open GitHub</a>
+              <a class="button button-primary" href="./writing.html">Read recent posts</a>
+              <a class="button button-secondary" href="./about.html">Explore pages</a>
             </div>
           </div>
 
@@ -78,120 +75,39 @@
         </section>
   
 
-        <section class="section" id="about">
+        <section class="section">
 
           <div class="section-heading">
             <p class="section-label">About</p>
-            <h2>A simple academic homepage that can keep growing</h2>
-            <p class="section-copy">Instead of a single static profile card, this site is meant to accumulate context over time.</p>
+            <h2>Start here</h2>
+            <p class="section-copy">The homepage now acts as a hub that routes to the rest of the site.</p>
           </div>
   
-          <div class="about-grid">
-            <article class="card card-large">
-              <p class="card-index">Profile</p>
-              <p class="lead">I am an undergraduate student at Jilin University with interests in time series analysis, large language models, and memory-centered modeling ideas.</p>
-              <p>The goal of this homepage is to give me one place to publish notes, explain what I am working on, and keep a public trail of projects and reading. As the work becomes more concrete, the site can expand without changing the underlying structure.</p>
-            </article>
-
-            <article class="card">
-              <p class="card-index">Keywords</p>
-              <div class="tag-row">
-                <span class="tag">Time Series Analysis</span><span class="tag">Large Language Models</span><span class="tag">Memory Mechanisms</span><span class="tag">Research Notes</span><span class="tag">Project Logs</span>
-              </div>
-            </article>
-
-            <article class="card">
-              <p class="card-index">Contact</p>
-              <dl class="meta-list">
-                <div>
-                  <dt>Email</dt>
-                  <dd><a href="mailto:huawh5523@mails.jlu.edu.cn">huawh5523@mails.jlu.edu.cn</a></dd>
-                </div>
-                <div>
-                  <dt>GitHub</dt>
-                  <dd><a href="https://github.com/Wenhao-Hua" target="_blank" rel="noreferrer">github.com/Wenhao-Hua</a></dd>
-                </div>
-                <div>
-                  <dt>Homepage</dt>
-                  <dd><a href="https://wenhao-hua.github.io/" target="_blank" rel="noreferrer">wenhao-hua.github.io/</a></dd>
-                </div>
-              </dl>
-            </article>
-          </div>
-        </section>
-
-        <section class="section" id="research">
-
-          <div class="section-heading">
-            <p class="section-label">Research</p>
-            <h2>Research themes I want to keep pushing</h2>
-            <p class="section-copy">These are not fixed claims about expertise. They are the areas this homepage will organize around.</p>
-          </div>
-  
-
           <div class="card-grid card-grid-3">
-            
-            <article class="card">
-              <p class="card-index">01</p>
-              <h3>Time Series Learning</h3>
-              <p>Forecasting, representation learning, and robust modeling for structured temporal signals.</p>
-            </article>
-            
-            <article class="card">
-              <p class="card-index">02</p>
-              <h3>LLM-Centered Systems</h3>
-              <p>How large language models can support reasoning, tooling, and research-oriented workflows.</p>
-            </article>
-            
-            <article class="card">
-              <p class="card-index">03</p>
-              <h3>Memory as Infrastructure</h3>
-              <p>Retrieval, compression, and memory-bank style mechanisms for longer context and better decisions.</p>
-            </article>
-            
+            <a class="card feature-card" href="./about.html">
+              <p class="card-index">About</p>
+              <h3>A simple academic homepage that can keep growing</h3>
+              <p>I am an undergraduate student at Jilin University with interests in time series analysis, large language models, and memory-centered modeling ideas.</p>
+            </a>
+            <a class="card feature-card" href="./research.html">
+              <p class="card-index">Research</p>
+              <h3>Research themes I want to keep pushing</h3>
+              <p>These are not fixed claims about expertise. They are the areas this homepage will organize around.</p>
+            </a>
+            <a class="card feature-card" href="./projects.html">
+              <p class="card-index">Projects</p>
+              <h3>What this site will hold</h3>
+              <p>The homepage is designed as an archive, not only as a landing page.</p>
+            </a>
           </div>
-  
         </section>
 
-        <section class="section" id="building">
-
-          <div class="section-heading">
-            <p class="section-label">Focus</p>
-            <h2>What this site will hold</h2>
-            <p class="section-copy">The homepage is designed as an archive, not only as a landing page.</p>
-          </div>
-  
-
-          <div class="card-grid card-grid-3">
-            
-            <a class="card feature-card" href="#writing">
-              <p class="card-index">Writing</p>
-              <h3>Research notes and reflections</h3>
-              <p>Short posts for reading notes, implementation ideas, and progress summaries.</p>
-            </a>
-            
-            <article class="card feature-card">
-              <p class="card-index">Profile</p>
-              <h3>A stable public introduction</h3>
-              <p>A homepage that can describe interests, contact details, and evolving work without redesigning everything.</p>
-            </article>
-            
-            <a class="card feature-card" href="https://github.com/Wenhao-Hua/Wenhao-Hua.github.io" target="_blank" rel="noreferrer">
-              <p class="card-index">Code</p>
-              <h3>GitHub-first publishing workflow</h3>
-              <p>Markdown sources and generated static files live in the same repository for easy GitHub Pages deployment.</p>
-            </a>
-            
-          </div>
-  
-        </section>
-
-        <section class="section" id="writing">
+        <section class="section">
 
           <div class="section-heading">
             <p class="section-label">Writing</p>
-            <h2>Recent Posts</h2>
-            <p class="section-copy">Posts are authored in Markdown and turned into static pages for GitHub Pages.</p>
+            <h2>Featured posts</h2>
+            <p class="section-copy">Recent writing stays visible on the homepage, but each post still has its own page.</p>
           </div>
   
 
@@ -202,43 +118,27 @@
               <h3>Welcome to My New Homepage</h3>
               <p>Why I replaced a minimal profile page with a homepage that can grow into a real writing space.</p>
               <div class="tag-row"><span class="tag">homepage</span><span class="tag">workflow</span><span class="tag">notes</span></div>
-              <a class="text-link" href="./posts/welcome.html">Read post</a>
+              <div class="post-actions">
+                <a class="text-link" href="./posts/welcome.html">Read post</a>
+                <a class="text-link text-link-muted" href="./writing.html">All posts</a>
+              </div>
             </article>
                 
           </div>
   
         </section>
-
-        <section class="section" id="contact">
-
-          <div class="section-heading">
-            <p class="section-label">Links</p>
-            <h2>Find me online</h2>
-            <p class="section-copy">The fastest way to understand what this site is becoming is to read the writing section below and then jump to GitHub.</p>
-          </div>
-  
-
-          <div class="link-grid">
-            
-            <a class="link-card" href="https://github.com/Wenhao-Hua" target="_blank" rel="noreferrer">
-              <strong>GitHub</strong>
-              <span>Code, repositories, and public experiments</span>
-            </a>
-            
-            <a class="link-card" href="https://github.com/Wenhao-Hua/Wenhao-Hua.github.io" target="_blank" rel="noreferrer">
-              <strong>Homepage Repository</strong>
-              <span>Source files and generated pages</span>
-            </a>
-            
-            <a class="link-card" href="mailto:huawh5523@mails.jlu.edu.cn" target="_blank" rel="noreferrer">
-              <strong>Email</strong>
-              <span>Best contact channel for now</span>
-            </a>
-            
-          </div>
-  
-        </section>
+    
       </main>
+
+      <footer class="site-footer">
+        <p>Wenhao Hua / Jilin University</p>
+        <div class="footer-links">
+          <a href="./index.html">Home</a>
+          <a href="https://github.com/Wenhao-Hua" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="mailto:huawh5523@mails.jlu.edu.cn">Email</a>
+        </div>
+      </footer>
+  
     </div>
     
   </body>

@@ -5,9 +5,26 @@ const ROOT = __dirname;
 const CONTENT_DIR = path.join(ROOT, "content");
 const POSTS_DIR = path.join(CONTENT_DIR, "posts");
 const OUTPUT_POSTS_DIR = path.join(ROOT, "posts");
-const INDEX_OUTPUT_PATH = path.join(ROOT, "index.html");
-const NOT_FOUND_OUTPUT_PATH = path.join(ROOT, "404.html");
 const SITE_CONFIG_PATH = path.join(CONTENT_DIR, "site.json");
+
+const GENERATED_ROOT_FILES = [
+  "index.html",
+  "about.html",
+  "research.html",
+  "projects.html",
+  "writing.html",
+  "contact.html",
+  "404.html",
+];
+
+const NAV_ITEMS = [
+  { key: "home", label: "Home", file: "index.html" },
+  { key: "about", label: "About", file: "about.html" },
+  { key: "research", label: "Research", file: "research.html" },
+  { key: "projects", label: "Projects", file: "projects.html" },
+  { key: "writing", label: "Writing", file: "writing.html" },
+  { key: "contact", label: "Contact", file: "contact.html" },
+];
 
 function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
@@ -274,10 +291,15 @@ function readPosts() {
   return posts;
 }
 
-function renderHeader(site) {
+function toRelativePath(fileName, depth) {
+  const prefix = depth > 0 ? "../".repeat(depth) : "./";
+  return `${prefix}${fileName}`;
+}
+
+function renderHeader(site, currentPage, depth = 0) {
   return `
       <header class="site-header">
-        <a class="brand" href="#top" aria-label="Back to top">
+        <a class="brand" href="${escapeHtml(toRelativePath("index.html", depth))}" aria-label="Go to homepage">
           <span class="brand-mark">WH</span>
           <span class="brand-copy">
             <strong>${escapeHtml(site.author)}</strong>
@@ -286,13 +308,27 @@ function renderHeader(site) {
         </a>
 
         <nav class="site-nav" aria-label="Primary navigation">
-          <a href="#about">About</a>
-          <a href="#research">Research</a>
-          <a href="#building">Focus</a>
-          <a href="#writing">Writing</a>
-          <a href="#contact">Contact</a>
+          ${NAV_ITEMS.map((item) => {
+            const isCurrent = item.key === currentPage;
+            return `<a class="site-nav-link${isCurrent ? " is-current" : ""}" href="${escapeHtml(
+              toRelativePath(item.file, depth),
+            )}">${escapeHtml(item.label)}</a>`;
+          }).join("")}
         </nav>
       </header>
+  `;
+}
+
+function renderFooter(site, depth = 0) {
+  return `
+      <footer class="site-footer">
+        <p>${escapeHtml(site.author)} / ${escapeHtml(site.affiliation)}</p>
+        <div class="footer-links">
+          <a href="${escapeHtml(toRelativePath("index.html", depth))}">Home</a>
+          <a href="${escapeHtml(site.github)}" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="mailto:${escapeHtml(site.email)}">Email</a>
+        </div>
+      </footer>
   `;
 }
 
@@ -303,6 +339,30 @@ function renderSectionHeading(label, title, copy = "") {
             <h2>${escapeHtml(title)}</h2>
             ${copy ? `<p class="section-copy">${escapeHtml(copy)}</p>` : ""}
           </div>
+  `;
+}
+
+function renderPageIntro(label, title, summary, actions = []) {
+  return `
+        <section class="page-intro">
+          <p class="section-label">${escapeHtml(label)}</p>
+          <h1>${escapeHtml(title)}</h1>
+          <p class="page-intro-copy">${escapeHtml(summary)}</p>
+          ${
+            actions.length
+              ? `<div class="hero-actions">${actions
+                  .map(
+                    (action, index) =>
+                      `<a class="button ${index === 0 ? "button-primary" : "button-secondary"}" href="${escapeHtml(
+                        action.href,
+                      )}"${/^[a-z]+:/i.test(action.href) ? ' target="_blank" rel="noreferrer"' : ""}>${escapeHtml(
+                        action.label,
+                      )}</a>`,
+                  )
+                  .join("")}</div>`
+              : ""
+          }
+        </section>
   `;
 }
 
@@ -341,7 +401,7 @@ function renderResearchCards(items) {
   `;
 }
 
-function renderBuildingCards(items) {
+function renderFeatureCards(items) {
   return `
           <div class="card-grid card-grid-3">
             ${items
@@ -386,7 +446,9 @@ function renderLinkCards(items) {
   `;
 }
 
-function renderPostCards(posts) {
+function renderPostCards(posts, options = {}) {
+  const { allPostsHref = "./writing.html", depth = 0 } = options;
+
   if (!posts.length) {
     return `
           <div class="post-grid">
@@ -418,7 +480,10 @@ function renderPostCards(posts) {
               <h3>${escapeHtml(post.title)}</h3>
               <p>${escapeHtml(post.summary || "A short summary will appear here once added to the front matter.")}</p>
               ${tagMarkup}
-              <a class="text-link" href="./posts/${encodeURI(post.slug)}.html">Read post</a>
+              <div class="post-actions">
+                <a class="text-link" href="${escapeHtml(toRelativePath(`posts/${post.slug}.html`, depth))}">Read post</a>
+                <a class="text-link text-link-muted" href="${escapeHtml(allPostsHref)}">All posts</a>
+              </div>
             </article>
                 `;
               })
@@ -427,67 +492,24 @@ function renderPostCards(posts) {
   `;
 }
 
-function renderLayout({ title, description, stylesheetPath, bodyClass = "", content }) {
-  return `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="${escapeHtml(description)}" />
-    <title>${escapeHtml(title)}</title>
-    <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="${escapeHtml(stylesheetPath)}" />
-  </head>
-  <body class="${escapeHtml(bodyClass)}">
-${content}
-  </body>
-</html>
-`;
-}
-
-function renderIndexPage(config, posts) {
-  const { site, hero, highlights, about, research, building, links, contact } = config;
-
-  return renderLayout({
-    title: site.title,
-    description: site.description,
-    stylesheetPath: "./styles.css?v=20260419",
-    content: `
-    <div class="page-shell">
-${renderHeader(site)}
-      <main>
-        <section class="hero" id="top">
-          <div class="hero-copy">
-            <p class="section-label">${escapeHtml(hero.eyebrow)}</p>
-            <h1>${escapeHtml(hero.headline)}</h1>
-            <p class="hero-summary">${escapeHtml(hero.summary)}</p>
-
-            <div class="hero-actions">
-              <a class="button button-primary" href="${escapeHtml(hero.primaryHref)}">${escapeHtml(
-                hero.primaryLabel,
-              )}</a>
-              <a class="button button-secondary" href="${escapeHtml(
-                hero.secondaryHref,
-              )}" target="_blank" rel="noreferrer">${escapeHtml(hero.secondaryLabel)}</a>
-            </div>
-          </div>
-
-          <aside class="hero-panel">
-            <p class="panel-label">${escapeHtml(hero.panelLabel)}</p>
-            <h2>${escapeHtml(hero.panelTitle)}</h2>
-            <ul class="signal-list">
-              ${hero.panelItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
-            </ul>
-          </aside>
-        </section>
-
+function renderAboutContent(config) {
+  const { site, about, highlights } = config;
+  return `
+${renderPageIntro(
+  "About",
+  about.title,
+  about.copy,
+  [
+    { label: "Go to research", href: "./research.html" },
+    { label: "Open GitHub", href: site.github },
+  ],
+)}
 ${renderHighlightCards(highlights)}
-
-        <section class="section" id="about">
-${renderSectionHeading("About", about.title, about.copy)}
+        <section class="section">
+${renderSectionHeading("Profile", "Who I am", "The page should make it easy to understand both the person and the direction of the work.")}
           <div class="about-grid">
-            <article class="card card-large">
-              <p class="card-index">Profile</p>
+            <article class="card card-wide">
+              <p class="card-index">Introduction</p>
               <p class="lead">${escapeHtml(about.lead)}</p>
               <p>${escapeHtml(about.body)}</p>
             </article>
@@ -522,27 +544,158 @@ ${renderSectionHeading("About", about.title, about.copy)}
             </article>
           </div>
         </section>
+  `;
+}
 
-        <section class="section" id="research">
-${renderSectionHeading("Research", research.title, research.copy)}
+function renderResearchContent(config) {
+  const { research } = config;
+  return `
+${renderPageIntro(
+  "Research",
+  research.title,
+  research.copy,
+  [
+    { label: "See projects", href: "./projects.html" },
+    { label: "Read posts", href: "./writing.html" },
+  ],
+)}
+        <section class="section">
+${renderSectionHeading("Themes", "Current directions", "Each theme has room to grow into posts, project pages, and future publications.")}
 ${renderResearchCards(research.items)}
         </section>
+  `;
+}
 
-        <section class="section" id="building">
-${renderSectionHeading("Focus", building.title, building.copy)}
-${renderBuildingCards(building.items)}
+function renderProjectsContent(config) {
+  const { building, links } = config;
+  return `
+${renderPageIntro(
+  "Projects",
+  building.title,
+  building.copy,
+  [
+    { label: "Read writing", href: "./writing.html" },
+    { label: "Homepage repo", href: links[1] ? links[1].href : "./index.html" },
+  ],
+)}
+        <section class="section">
+${renderSectionHeading("Work", "What this site is organizing", "This page can later hold selected repositories, experiments, and implementation notes.")}
+${renderFeatureCards(building.items)}
         </section>
+  `;
+}
 
-        <section class="section" id="writing">
-${renderSectionHeading("Writing", "Recent Posts", "Posts are authored in Markdown and turned into static pages for GitHub Pages.")}
-${renderPostCards(posts)}
+function renderWritingContent(posts) {
+  return `
+${renderPageIntro(
+  "Writing",
+  "Posts and notes",
+  "This page collects every published post and routes each entry to its own standalone article page.",
+  [
+    { label: "Back to home", href: "./index.html" },
+  ],
+)}
+        <section class="section">
+${renderSectionHeading("Archive", "All posts", "Longer writing lives here instead of being buried in repository READMEs.")}
+${renderPostCards(posts, { allPostsHref: "./writing.html" })}
         </section>
+  `;
+}
 
-        <section class="section" id="contact">
-${renderSectionHeading("Links", contact.title, contact.copy)}
+function renderContactContent(config) {
+  const { contact, site, links } = config;
+  return `
+${renderPageIntro(
+  "Contact",
+  contact.title,
+  contact.copy,
+  [
+    { label: "Send email", href: `mailto:${site.email}` },
+    { label: "Open GitHub", href: site.github },
+  ],
+)}
+        <section class="section">
+${renderSectionHeading("Reach Out", "Useful links", "If someone lands on this page first, they should still be able to move through the whole site easily.")}
 ${renderLinkCards(links)}
         </section>
+  `;
+}
+
+function renderHomePage(config, posts) {
+  const { site, hero, highlights, about, research, building } = config;
+  const featuredPosts = posts.slice(0, 3);
+
+  return renderStandardPage({
+    site,
+    currentPage: "home",
+    title: site.title,
+    description: site.description,
+    content: `
+        <section class="hero">
+          <div class="hero-copy">
+            <p class="section-label">${escapeHtml(hero.eyebrow)}</p>
+            <h1>${escapeHtml(hero.headline)}</h1>
+            <p class="hero-summary">${escapeHtml(hero.summary)}</p>
+
+            <div class="hero-actions">
+              <a class="button button-primary" href="./writing.html">${escapeHtml(hero.primaryLabel)}</a>
+              <a class="button button-secondary" href="./about.html">Explore pages</a>
+            </div>
+          </div>
+
+          <aside class="hero-panel">
+            <p class="panel-label">${escapeHtml(hero.panelLabel)}</p>
+            <h2>${escapeHtml(hero.panelTitle)}</h2>
+            <ul class="signal-list">
+              ${hero.panelItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+            </ul>
+          </aside>
+        </section>
+
+${renderHighlightCards(highlights)}
+
+        <section class="section">
+${renderSectionHeading("About", "Start here", "The homepage now acts as a hub that routes to the rest of the site.")}
+          <div class="card-grid card-grid-3">
+            <a class="card feature-card" href="./about.html">
+              <p class="card-index">About</p>
+              <h3>${escapeHtml(about.title)}</h3>
+              <p>${escapeHtml(about.lead)}</p>
+            </a>
+            <a class="card feature-card" href="./research.html">
+              <p class="card-index">Research</p>
+              <h3>${escapeHtml(research.title)}</h3>
+              <p>${escapeHtml(research.copy)}</p>
+            </a>
+            <a class="card feature-card" href="./projects.html">
+              <p class="card-index">Projects</p>
+              <h3>${escapeHtml(building.title)}</h3>
+              <p>${escapeHtml(building.copy)}</p>
+            </a>
+          </div>
+        </section>
+
+        <section class="section">
+${renderSectionHeading("Writing", "Featured posts", "Recent writing stays visible on the homepage, but each post still has its own page.")}
+${renderPostCards(featuredPosts, { allPostsHref: "./writing.html" })}
+        </section>
+    `,
+  });
+}
+
+function renderStandardPage({ site, currentPage, title, description, content }) {
+  return renderLayout({
+    title,
+    description,
+    stylesheetPath: "./styles.css?v=20260419-multipage",
+    bodyClass: "site-page",
+    content: `
+    <div class="page-shell">
+${renderHeader(site, currentPage)}
+      <main>
+${content}
       </main>
+${renderFooter(site)}
     </div>
     `,
   });
@@ -559,62 +712,168 @@ function renderPostPage(config, post) {
   return renderLayout({
     title: `${post.title} | ${site.author}`,
     description: post.summary || site.description,
-    stylesheetPath: "../styles.css?v=20260419",
+    stylesheetPath: "../styles.css?v=20260419-multipage",
     bodyClass: "article-page",
     content: `
-    <div class="article-shell">
-      <a class="article-back" href="../index.html">&larr; Back to homepage</a>
+    <div class="page-shell page-shell-article">
+${renderHeader(site, "writing", 1)}
+      <main class="article-main">
+        <div class="article-shell">
+          <a class="article-back" href="../writing.html">&larr; Back to writing</a>
 
-      <article class="article">
-        <header class="article-header">
-          <p class="section-label">${escapeHtml(post.category)}</p>
-          <h1>${escapeHtml(post.title)}</h1>
-          <p class="article-summary">${escapeHtml(post.summary)}</p>
-          ${tagMarkup}
-          <p class="article-meta">${escapeHtml(site.author)} / ${escapeHtml(
-            formatDate(post.date, "long"),
-          )} / ${post.readingMinutes} min read</p>
-        </header>
+          <article class="article">
+            <header class="article-header">
+              <p class="section-label">${escapeHtml(post.category)}</p>
+              <h1>${escapeHtml(post.title)}</h1>
+              <p class="article-summary">${escapeHtml(post.summary)}</p>
+              ${tagMarkup}
+              <p class="article-meta">${escapeHtml(site.author)} / ${escapeHtml(
+                formatDate(post.date, "long"),
+              )} / ${post.readingMinutes} min read</p>
+            </header>
 
-        <section class="article-body">
-          ${post.renderedBody}
-        </section>
-      </article>
+            <section class="article-body">
+              ${post.renderedBody}
+            </section>
+          </article>
+        </div>
+      </main>
+${renderFooter(site, 1)}
     </div>
     `,
   });
 }
 
 function renderNotFoundPage(config) {
+  const { site } = config;
   return renderLayout({
-    title: `Page Not Found | ${config.site.author}`,
-    description: config.site.description,
-    stylesheetPath: "./styles.css?v=20260419",
+    title: `Page Not Found | ${site.author}`,
+    description: site.description,
+    stylesheetPath: "./styles.css?v=20260419-multipage",
     bodyClass: "article-page",
     content: `
-    <div class="article-shell">
-      <article class="article article-centered">
-        <p class="section-label">404</p>
-        <h1>Page not found</h1>
-        <p class="article-summary">The page you tried to open does not exist or has moved.</p>
-        <p><a class="button button-primary" href="./index.html">Return to homepage</a></p>
-      </article>
+    <div class="page-shell">
+${renderHeader(site, "")}
+      <main class="article-main">
+        <div class="article-shell">
+          <article class="article article-centered">
+            <p class="section-label">404</p>
+            <h1>Page not found</h1>
+            <p class="article-summary">The page you tried to open does not exist or has moved.</p>
+            <p><a class="button button-primary" href="./index.html">Return to homepage</a></p>
+          </article>
+        </div>
+      </main>
+${renderFooter(site)}
     </div>
     `,
   });
 }
 
-function writeGeneratedFiles(config, posts) {
-  ensureDir(OUTPUT_POSTS_DIR);
+function renderLayout({ title, description, stylesheetPath, bodyClass = "", content }) {
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="${escapeHtml(description)}" />
+    <title>${escapeHtml(title)}</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="${escapeHtml(stylesheetPath)}" />
+  </head>
+  <body class="${escapeHtml(bodyClass)}">
+${content}
+  </body>
+</html>
+`;
+}
 
+function cleanGeneratedRootFiles() {
+  for (const fileName of GENERATED_ROOT_FILES) {
+    const fullPath = path.join(ROOT, fileName);
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+  }
+}
+
+function cleanGeneratedPostFiles() {
+  ensureDir(OUTPUT_POSTS_DIR);
   for (const fileName of fs.readdirSync(OUTPUT_POSTS_DIR)) {
     if (fileName.endsWith(".html")) {
       fs.unlinkSync(path.join(OUTPUT_POSTS_DIR, fileName));
     }
   }
+}
 
-  fs.writeFileSync(INDEX_OUTPUT_PATH, renderIndexPage(config, posts), "utf8");
-  fs.writeFileSync(NOT_FOUND_OUTPUT_PATH, renderNotFoundPage(config), "utf8");
+function writeGeneratedFiles(config, posts) {
+  cleanGeneratedRootFiles();
+  cleanGeneratedPostFiles();
+
+  const rootPages = [
+    {
+      file: "index.html",
+      content: renderHomePage(config, posts),
+    },
+    {
+      file: "about.html",
+      content: renderStandardPage({
+        site: config.site,
+        currentPage: "about",
+        title: `About | ${config.site.author}`,
+        description: config.about.copy,
+        content: renderAboutContent(config),
+      }),
+    },
+    {
+      file: "research.html",
+      content: renderStandardPage({
+        site: config.site,
+        currentPage: "research",
+        title: `Research | ${config.site.author}`,
+        description: config.research.copy,
+        content: renderResearchContent(config),
+      }),
+    },
+    {
+      file: "projects.html",
+      content: renderStandardPage({
+        site: config.site,
+        currentPage: "projects",
+        title: `Projects | ${config.site.author}`,
+        description: config.building.copy,
+        content: renderProjectsContent(config),
+      }),
+    },
+    {
+      file: "writing.html",
+      content: renderStandardPage({
+        site: config.site,
+        currentPage: "writing",
+        title: `Writing | ${config.site.author}`,
+        description: "Post archive and notes.",
+        content: renderWritingContent(posts),
+      }),
+    },
+    {
+      file: "contact.html",
+      content: renderStandardPage({
+        site: config.site,
+        currentPage: "contact",
+        title: `Contact | ${config.site.author}`,
+        description: config.contact.copy,
+        content: renderContactContent(config),
+      }),
+    },
+    {
+      file: "404.html",
+      content: renderNotFoundPage(config),
+    },
+  ];
+
+  for (const page of rootPages) {
+    fs.writeFileSync(path.join(ROOT, page.file), page.content, "utf8");
+  }
 
   for (const post of posts) {
     const outputPath = path.join(OUTPUT_POSTS_DIR, `${post.slug}.html`);
@@ -626,7 +885,7 @@ function build() {
   const config = readJson(SITE_CONFIG_PATH);
   const posts = readPosts();
   writeGeneratedFiles(config, posts);
-  console.log(`Built ${posts.length} post(s) into ${ROOT}.`);
+  console.log(`Built ${GENERATED_ROOT_FILES.length} pages and ${posts.length} post(s) into ${ROOT}.`);
 }
 
 build();

@@ -6,24 +6,41 @@
     <meta name="description" content="Why I replaced a minimal profile page with a homepage that can grow into a real writing space." />
     <title>Welcome to My New Homepage | Wenhao Hua</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="../styles.css?v=20260419" />
+    <link rel="stylesheet" href="../styles.css?v=20260419-multipage" />
   </head>
   <body class="article-page">
 
-    <div class="article-shell">
-      <a class="article-back" href="../index.html">&larr; Back to homepage</a>
+    <div class="page-shell page-shell-article">
 
-      <article class="article">
-        <header class="article-header">
-          <p class="section-label">Start Here</p>
-          <h1>Welcome to My New Homepage</h1>
-          <p class="article-summary">Why I replaced a minimal profile page with a homepage that can grow into a real writing space.</p>
-          <div class="tag-row"><span class="tag">homepage</span><span class="tag">workflow</span><span class="tag">notes</span></div>
-          <p class="article-meta">Wenhao Hua / April 18, 2026 / 1 min read</p>
-        </header>
+      <header class="site-header">
+        <a class="brand" href="../index.html" aria-label="Go to homepage">
+          <span class="brand-mark">WH</span>
+          <span class="brand-copy">
+            <strong>Wenhao Hua</strong>
+            <span>Jilin University</span>
+          </span>
+        </a>
 
-        <section class="article-body">
-          <p>This is the first post on the new site. It is not a tutorial. It is a short explanation of why I moved away from a very small personal page and started building a homepage that can keep accumulating structure.</p>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a class="site-nav-link" href="../index.html">Home</a><a class="site-nav-link" href="../about.html">About</a><a class="site-nav-link" href="../research.html">Research</a><a class="site-nav-link" href="../projects.html">Projects</a><a class="site-nav-link is-current" href="../writing.html">Writing</a><a class="site-nav-link" href="../contact.html">Contact</a>
+        </nav>
+      </header>
+  
+      <main class="article-main">
+        <div class="article-shell">
+          <a class="article-back" href="../writing.html">&larr; Back to writing</a>
+
+          <article class="article">
+            <header class="article-header">
+              <p class="section-label">Start Here</p>
+              <h1>Welcome to My New Homepage</h1>
+              <p class="article-summary">Why I replaced a minimal profile page with a homepage that can grow into a real writing space.</p>
+              <div class="tag-row"><span class="tag">homepage</span><span class="tag">workflow</span><span class="tag">notes</span></div>
+              <p class="article-meta">Wenhao Hua / April 18, 2026 / 1 min read</p>
+            </header>
+
+            <section class="article-body">
+              <p>This is the first post on the new site. It is not a tutorial. It is a short explanation of why I moved away from a very small personal page and started building a homepage that can keep accumulating structure.</p>
 <h2>Why I changed it</h2>
 <p>Many personal websites stop at the same point: a name, a school, a few interests, and an email address. That kind of page is useful, but it behaves more like a business card than a working archive.</p>
 <p>I wanted this site to do more than introduce me briefly. It should also help me organize my own work: research interests, project notes, reading summaries, and longer writing. A homepage becomes more valuable when it keeps adding context instead of staying fixed.</p>
@@ -31,8 +48,20 @@
 <ul><li>A clear public profile</li><li>A stable entry point for research interests</li><li>A place to collect notes and project logs</li><li>A writing space for reflections that are too long for a repository README</li></ul>
 <h2>What comes next</h2>
 <p>I plan to keep refining the homepage as more work becomes public. That includes project updates, reading notes, and a better overview of what I am actually building. The structure is intentionally simple so that publishing stays easy and writing remains the main focus.</p>
-        </section>
-      </article>
+            </section>
+          </article>
+        </div>
+      </main>
+
+      <footer class="site-footer">
+        <p>Wenhao Hua / Jilin University</p>
+        <div class="footer-links">
+          <a href="../index.html">Home</a>
+          <a href="https://github.com/Wenhao-Hua" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="mailto:huawh5523@mails.jlu.edu.cn">Email</a>
+        </div>
+      </footer>
+  
     </div>
     
   </body>
