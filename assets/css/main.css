@@ -1141,14 +1141,11 @@ input, select, textarea {
 	}
 
 	#bg:before {
-		background-position: center center;
-		background-repeat: no-repeat;
-		background-size: cover;
+		background: none;
 		filter: none;
 		inset: 0;
 		opacity: 1;
 		transform: none;
-		transition: background-image 0.35s ease, filter 0.35s ease;
 	}
 
 	#bg:after {
@@ -1174,8 +1171,4 @@ input, select, textarea {
 	#header nav a:hover:before {
 		border-color: rgba(var(--accent-rgb), 0.82);
 		box-shadow: 0 0 28px rgba(var(--accent-rgb), 0.26);
-	}
-
-	body[data-wallpaper="sunset"] #bg:before {
-		background-image: url("images/wallpapers/sunset.gif");
 	}
