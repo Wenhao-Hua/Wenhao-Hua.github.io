@@ -1223,9 +1223,9 @@ input, select, textarea {
 		background-position: center center;
 		background-repeat: no-repeat;
 		background-size: cover;
-		filter: saturate(1.16);
+		filter: none;
 		inset: 0;
-		opacity: 0.98;
+		opacity: 1;
 		transform: none;
 		transition: background-image 0.35s ease, filter 0.35s ease;
 	}
@@ -1259,17 +1259,17 @@ input, select, textarea {
 	}
 
 	body[data-wallpaper="sunset"] #bg:before {
-		background-image: url("images/wallpapers/sunset.gif");
+		background-image: url("images/wallpapers/sunset.jpg");
 	}
 
 	body[data-wallpaper="wave"] #bg:before {
-		background-image: url("images/wallpapers/wave.gif");
-		filter: saturate(1.05) contrast(1.08);
+		background-image: url("images/wallpapers/wave.jpg");
+		filter: none;
 	}
 
 	body[data-wallpaper="lake"] #bg:before {
-		background-image: url("images/wallpapers/lake.gif");
-		filter: saturate(1.18);
+		background-image: url("images/wallpapers/lake.jpg");
+		filter: none;
 	}
 
 	@media screen and (max-width: 736px) {
