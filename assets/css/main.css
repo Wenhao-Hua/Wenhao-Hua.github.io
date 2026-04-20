@@ -1084,14 +1084,101 @@ input, select, textarea {
 			padding: 0 1em;
 		} }
 
-/* Custom Wallpaper Background */
+/* Custom Wallpaper Backgrounds */
+
+	#wallpaper-switch {
+		display: flex;
+		gap: 0.45rem;
+		left: 1.8rem;
+		position: fixed;
+		top: 1.6rem;
+		z-index: 5;
+	}
+
+	#wallpaper-switch button {
+		-moz-appearance: none;
+		-webkit-appearance: none;
+		appearance: none;
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.28);
+		border-radius: 999px;
+		color: rgba(255, 255, 255, 0.74);
+		cursor: pointer;
+		font: inherit;
+		font-size: 0.72rem;
+		letter-spacing: 0.06em;
+		line-height: 1;
+		padding: 0.52rem 0.72rem;
+		transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+	}
+
+	#wallpaper-switch button:hover,
+	#wallpaper-switch button.active {
+		background: rgba(255, 255, 255, 0.2);
+		border-color: rgba(255, 255, 255, 0.62);
+		color: #fff;
+	}
 
 	#bg {
 		-moz-animation: none !important;
 		-webkit-animation: none !important;
 		-ms-animation: none !important;
 		animation: none !important;
-		background: #08111f url("images/bg.jpg") center center / cover no-repeat fixed;
+		background: #08111f;
 		height: 100%;
+		overflow: hidden;
 		width: 100%;
+	}
+
+	#bg:before,
+	#bg:after {
+		content: '';
+		display: block;
+		pointer-events: none;
+		position: fixed;
+	}
+
+	#bg:before {
+		background-position: center center;
+		background-repeat: no-repeat;
+		background-size: cover;
+		filter: blur(13px) saturate(1.2);
+		inset: -8%;
+		opacity: 0.98;
+		transform: scale(1.08);
+	}
+
+	#bg:after {
+		background:
+			radial-gradient(circle at 50% 44%, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.52) 68%),
+			linear-gradient(180deg, rgba(5, 10, 20, 0.16), rgba(5, 10, 20, 0.5));
+		inset: 0;
+	}
+
+	body[data-wallpaper="sunset"] #bg:before {
+		background-image: url("images/wallpapers/sunset.gif");
+	}
+
+	body[data-wallpaper="wave"] #bg:before {
+		background-image: url("images/wallpapers/wave.gif");
+		filter: blur(10px) saturate(1.04) contrast(1.08);
+	}
+
+	body[data-wallpaper="lake"] #bg:before {
+		background-image: url("images/wallpapers/lake.gif");
+		filter: blur(11px) saturate(1.16);
+	}
+
+	@media screen and (max-width: 736px) {
+		#wallpaper-switch {
+			bottom: 1rem;
+			left: 50%;
+			top: auto;
+			transform: translateX(-50%);
+		}
+
+		#wallpaper-switch button {
+			font-size: 0.68rem;
+			padding: 0.48rem 0.62rem;
+		}
 	}

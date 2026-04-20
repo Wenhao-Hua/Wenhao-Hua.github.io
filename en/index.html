@@ -58,11 +58,17 @@
 		<link rel="stylesheet" href="/assets/css/noscript.css" />
 	</noscript>
 </head>
-<body class="is-preload">
+<body class="is-preload" data-wallpaper="sunset">
 	<div id="lang-switch" aria-label="Language switch">
 		<a href="/">中文</a>
 		<span class="sep">/</span>
 		<a href="/en/" class="active">EN</a>
+	</div>
+
+	<div id="wallpaper-switch" aria-label="Wallpaper style">
+		<button type="button" data-wallpaper="sunset">Sunset</button>
+		<button type="button" data-wallpaper="wave">Wave</button>
+		<button type="button" data-wallpaper="lake">Lake</button>
 	</div>
 
 	<div id="wrapper">
@@ -89,6 +95,30 @@
 		</div>
 	</div>
 	<script>
+		(function () {
+			var storageKey = 'wenhao-homepage-wallpaper';
+			var buttons = document.querySelectorAll('#wallpaper-switch button');
+			var applyWallpaper = function (name) {
+				document.body.setAttribute('data-wallpaper', name);
+				for (var i = 0; i < buttons.length; i++) {
+					buttons[i].classList.toggle('active', buttons[i].getAttribute('data-wallpaper') === name);
+				}
+				try {
+					window.localStorage.setItem(storageKey, name);
+				} catch (error) {}
+			};
+			var initialWallpaper = 'sunset';
+			try {
+				initialWallpaper = window.localStorage.getItem(storageKey) || initialWallpaper;
+			} catch (error) {}
+			for (var i = 0; i < buttons.length; i++) {
+				buttons[i].onclick = function () {
+					applyWallpaper(this.getAttribute('data-wallpaper'));
+				};
+			}
+			applyWallpaper(initialWallpaper);
+		})();
+
 		window.onload = function () {
 			document.body.classList.remove('is-preload');
 		};
