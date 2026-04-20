@@ -66,9 +66,18 @@
 	</div>
 
 	<div id="wallpaper-switch" aria-label="Wallpaper style">
-		<button type="button" data-wallpaper="sunset">Sunset</button>
-		<button type="button" data-wallpaper="wave">Wave</button>
-		<button type="button" data-wallpaper="lake">Lake</button>
+		<button type="button" data-wallpaper="sunset">
+			<span class="thumb" aria-hidden="true"></span>
+			<span class="name">Quiet Dusk</span>
+		</button>
+		<button type="button" data-wallpaper="wave">
+			<span class="thumb" aria-hidden="true"></span>
+			<span class="name">Great Wave</span>
+		</button>
+		<button type="button" data-wallpaper="lake">
+			<span class="thumb" aria-hidden="true"></span>
+			<span class="name">Suzume Lake</span>
+		</button>
 	</div>
 
 	<div id="wrapper">
@@ -98,10 +107,19 @@
 		(function () {
 			var storageKey = 'wenhao-homepage-wallpaper';
 			var buttons = document.querySelectorAll('#wallpaper-switch button');
+			var wallpapers = {};
+			for (var i = 0; i < buttons.length; i++) {
+				wallpapers[buttons[i].getAttribute('data-wallpaper')] = true;
+			}
 			var applyWallpaper = function (name) {
+				if (!wallpapers[name]) {
+					name = 'sunset';
+				}
 				document.body.setAttribute('data-wallpaper', name);
 				for (var i = 0; i < buttons.length; i++) {
-					buttons[i].classList.toggle('active', buttons[i].getAttribute('data-wallpaper') === name);
+					var isActive = buttons[i].getAttribute('data-wallpaper') === name;
+					buttons[i].classList.toggle('active', isActive);
+					buttons[i].setAttribute('aria-pressed', isActive ? 'true' : 'false');
 				}
 				try {
 					window.localStorage.setItem(storageKey, name);
